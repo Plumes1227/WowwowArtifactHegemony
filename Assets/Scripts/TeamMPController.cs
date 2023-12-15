@@ -1,29 +1,54 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace DefaultNamespace
 {
     public class TeamMPController : MonoBehaviour
     {
+        [SerializeField] private int _defaultMp = 3;
         private TeamMPStatus[] _teamMpStatusArray;
+        private Dictionary<TeamMPStatus, int> _teamMpDictionary = new();
         private int _topMP;
 
         private void Start()
         {
             _teamMpStatusArray = GetComponentsInChildren<TeamMPStatus>();
+            _topMP = _defaultMp;
             foreach (var teamMpStatus in _teamMpStatusArray)
             {
-                teamMpStatus.OnMPUpdate += UpdateTopMP;
-                teamMpStatus.UpdateMpBar(_topMP);
+                teamMpStatus.OnMPAdded += AddTeamMp;
+                teamMpStatus.OnMPDeducted += DeductedTeamMP;
+                _teamMpDictionary.Add(teamMpStatus, _defaultMp);
+                teamMpStatus.UpdateMpBar(_defaultMp, _topMP);
             }
         }
 
-        private void UpdateTopMP(int teamMp)
+        private void AddTeamMp(TeamMPStatus team)
         {
-            if (teamMp > _topMP) _topMP = teamMp;
+            _teamMpDictionary[team]++;
+            if (_teamMpDictionary[team] > _topMP) _topMP = _teamMpDictionary[team];
 
-            foreach (var teamMpStatus in _teamMpStatusArray)
+            UpdateAllTeamMpStatus();
+        }
+
+
+        private void DeductedTeamMP(TeamMPStatus team)
+        {
+            _teamMpDictionary[team]--;
+            _topMP = 0;
+            foreach (var keyValuePair in _teamMpDictionary)
             {
-                teamMpStatus.UpdateMpBar(_topMP);
+                _topMP = keyValuePair.Value >= _topMP ? keyValuePair.Value : _topMP;
+            }
+
+            UpdateAllTeamMpStatus();
+        }
+
+        private void UpdateAllTeamMpStatus()
+        {
+            foreach (var keyValuePair in _teamMpDictionary)
+            {
+                keyValuePair.Key.UpdateMpBar(keyValuePair.Value, _topMP);
             }
         }
     }

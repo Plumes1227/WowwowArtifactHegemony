@@ -1,5 +1,6 @@
 ﻿using System;
 using Sirenix.OdinInspector;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,10 +11,9 @@ namespace DefaultNamespace
         [SerializeField] private Image image;
         [SerializeField] private Button plusButton;
         [SerializeField] private Button minusButton;
-        public Action<int> OnMPUpdate;
-
-        private int mp;
-        private int TopMP;
+        [SerializeField] private TextMeshProUGUI mpValueTMP;
+        public Action<TeamMPStatus> OnMPAdded;
+        public Action<TeamMPStatus> OnMPDeducted;
 
         private void Start()
         {
@@ -24,19 +24,18 @@ namespace DefaultNamespace
         [Button]
         private void AddScore()
         {
-            mp++;
-            OnMPUpdate.Invoke(mp);
+            OnMPAdded.Invoke(this);
         }
 
         [Button]
         private void DeductedScore()
         {
-            mp--;
-            OnMPUpdate.Invoke(mp);
+            OnMPDeducted.Invoke(this);
         }
 
-        public void UpdateMpBar(float topMp)
+        public void UpdateMpBar(int mp, float topMp)
         {
+            mpValueTMP.text = mp.ToString();
             image.fillAmount = mp / topMp;
         }
     }
