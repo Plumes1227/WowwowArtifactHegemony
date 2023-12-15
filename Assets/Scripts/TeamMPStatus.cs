@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System;
+using Sirenix.OdinInspector;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace DefaultNamespace
@@ -8,6 +10,7 @@ namespace DefaultNamespace
         [SerializeField] private Image image;
         [SerializeField] private Button plusButton;
         [SerializeField] private Button minusButton;
+        public Action<int> OnMPUpdate;
 
         private int mp;
         private int TopMP;
@@ -17,24 +20,24 @@ namespace DefaultNamespace
             plusButton.onClick.AddListener(AddScore);
             minusButton.onClick.AddListener(DeductedScore);
         }
-        
+
+        [Button]
         private void AddScore()
         {
             mp++;
-            UpdateTopScore();
-            image.fillAmount = mp / TopMP;
+            OnMPUpdate.Invoke(mp);
         }
 
-        private void UpdateTopScore()
-        {
-            if (mp > TopMP) TopMP = mp;
-        }
-
+        [Button]
         private void DeductedScore()
         {
             mp--;
-            UpdateTopScore();
-            image.fillAmount = mp / TopMP;
+            OnMPUpdate.Invoke(mp);
+        }
+
+        public void UpdateMpBar(float topMp)
+        {
+            image.fillAmount = mp / topMp;
         }
     }
 }
