@@ -8,12 +8,11 @@ namespace DefaultNamespace
         [SerializeField] private int _defaultMp = 3;
         private TeamMPStatus[] _teamMpStatusArray;
         private Dictionary<TeamMPStatus, int> _teamMpDictionary = new();
-        private int _topMP;
+        private int _topMP = 16;
 
         private void Start()
         {
             _teamMpStatusArray = GetComponentsInChildren<TeamMPStatus>();
-            _topMP = _defaultMp;
             foreach (var teamMpStatus in _teamMpStatusArray)
             {
                 teamMpStatus.OnMPAdded += AddTeamMp;
@@ -25,8 +24,10 @@ namespace DefaultNamespace
 
         private void AddTeamMp(TeamMPStatus team)
         {
+            Debug.Log(_teamMpDictionary[team]);
+            if (_teamMpDictionary[team] >= _topMP) return;
+
             _teamMpDictionary[team]++;
-            if (_teamMpDictionary[team] > _topMP) _topMP = _teamMpDictionary[team];
 
             UpdateAllTeamMpStatus();
         }
@@ -34,12 +35,14 @@ namespace DefaultNamespace
 
         private void DeductedTeamMP(TeamMPStatus team)
         {
+            if (_teamMpDictionary[team] == 0) return;
+
             _teamMpDictionary[team]--;
-            _topMP = 0;
-            foreach (var keyValuePair in _teamMpDictionary)
-            {
-                _topMP = keyValuePair.Value >= _topMP ? keyValuePair.Value : _topMP;
-            }
+            // _topMP = 0;
+            // foreach (var keyValuePair in _teamMpDictionary)
+            // {
+            //     _topMP = keyValuePair.Value >= _topMP ? keyValuePair.Value : _topMP;
+            // }
 
             UpdateAllTeamMpStatus();
         }
